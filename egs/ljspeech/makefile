@@ -1,11 +1,15 @@
-exp_dir=exp/valle1
+prepare_data:
+	bash prepare.sh --stage -1 --stop-stage 3 \
+		--audio_extractor "Encodec" \
+		--audio_feats_dir data/tokenized
+
+
+exp_dir=exp/valle
 
 tensorboard:
 	tensorboard --logdir=${exp_dir} --port=1234
 
-
-
-export CUDA_VISIBLE_DEVICES=3,7
+export CUDA_VISIBLE_DEVICES=3,4
 
 # Train AR model
 train_AR:
