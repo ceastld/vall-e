@@ -14,3 +14,4 @@ egs/libritts/prompts/*.png
 valle/version.py
 infer/
 output*.log
+egs/ljspeech/makefile
