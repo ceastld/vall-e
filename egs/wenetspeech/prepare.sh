@@ -5,13 +5,9 @@ export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
 
 set -eou pipefail
 
-nj=15
+nj=16
 stage=0
 stop_stage=3
-
-# Split L subset to this number of pieces
-# This is to avoid OOM during feature extraction.
-num_splits=1000
 
 # We assume dl_dir (download dir) contains the following
 # directories and files. If not, they will be downloaded
@@ -21,17 +17,8 @@ num_splits=1000
 #      You can find audio, WenetSpeech.json inside it.
 #      You can apply for the download credentials by following
 #      https://github.com/wenet-e2e/WenetSpeech#download
-#
-#  - $dl_dir/musan
-#      This directory contains the following directories downloaded from
-#       http://www.openslr.org/17/
-#
-#     - music
-#     - noise
-#     - speech
 
 dl_dir=$PWD/download
-lang_char_dir=data/lang_char
 
 . shared/parse_options.sh || exit 1
 
@@ -40,129 +27,24 @@ lang_char_dir=data/lang_char
 mkdir -p data
 
 log() {
-  # This function is from espnet
-  local fname=${BASH_SOURCE[1]##*/}
-  echo -e "$(date '+%Y-%m-%d %H:%M:%S') (${fname}:${BASH_LINENO[0]}:${FUNCNAME[1]}) $*"
+    # This function is from espnet
+    local fname=${BASH_SOURCE[1]##*/}
+    echo -e "$(date '+%Y-%m-%d %H:%M:%S') (${fname}:${BASH_LINENO[0]}:${FUNCNAME[1]}) $*"
 }
 
-log "dl_dir: $dl_dir"
-
-if [ $stage -le 0 ] && [ $stop_stage -ge 0 ]; then
-  log "Stage 0: Download data"
-
-  [ ! -e $dl_dir/WenetSpeech ] && mkdir -p $dl_dir/WenetSpeech
-
-  # If you have pre-downloaded it to /path/to/WenetSpeech,
-  # you can create a symlink
-  #
-  # ln -sfv /path/to/WenetSpeech $dl_dir/WenetSpeech
-  #
-  if [ ! -d $dl_dir/WenetSpeech ]; then
-    log "Stage 0: You should download WenetSpeech first"
-    exit 1;
-  fi
+if [ $stage -le 0 ] && [ $stop_stage -ge 0]; then
+    log "dl_dir: $dl_dir"
+    log "Stage 0: Download data"
+    if [ ! -d $dl_dir/WenetSpeech ]; then
+        log "Stage 0: You should download WenetSpeech first"
+        exit 1;
+    fi
 fi
 
 if [ $stage -le 1 ] && [ $stop_stage -ge 1 ]; then
-  log "Stage 1: Prepare WenetSpeech manifest"
-  # We assume that you have downloaded the WenetSpeech corpus
-  # to $dl_dir/WenetSpeech
-  mkdir -p data/manifests
-  lhotse prepare wenet-speech $dl_dir/WenetSpeech data/manifests -j $nj
+    log "Stage 1: Prepare WenetSpeech manifest"
+    mkdir -p data/manifests
+    if [ ! -e data/manifest/.wenetspeech.done ]; then
+        lhotse prepare wenet-speech $dl_dir/WenetSpeech data/manifests -j $nj
+    fi
 fi
-
-if [ $stage -le 2 ] && [ $stop_stage -ge 2 ]; then
-  log "Stage 2: Prepare musan manifest"
-  # We assume that you have downloaded the musan corpus
-  # to data/musan
-  mkdir -p data/manifests
-  lhotse prepare musan $dl_dir/musan data/manifests
-fi
-
-if [ $stage -le 3 ] && [ $stop_stage -ge 3 ]; then
-  log "Stage 3: Preprocess WenetSpeech manifest"
-  if [ ! -f data/fbank/.preprocess_complete ]; then
-    python3 ./local/preprocess_wenetspeech.py
-    touch data/fbank/.preprocess_complete
-  fi
-fi
-
-if [ $stage -le 4 ] && [ $stop_stage -ge 4 ]; then
-  log "Stage 4: Compute features for DEV and TEST subsets of WenetSpeech (may take 2 minutes)"
-  python3 ./local/compute_fbank_wenetspeech_dev_test.py
-fi
-
-if [ $stage -le 5 ] && [ $stop_stage -ge 5 ]; then
-  log "Stage 5: Split S subset into ${num_splits} pieces"
-  split_dir=data/fbank/S_split_${num_splits}
-  if [ ! -f $split_dir/.split_completed ]; then
-    lhotse split $num_splits ./data/fbank/cuts_S_raw.jsonl.gz $split_dir
-    touch $split_dir/.split_completed
-  fi
-fi
-
-if [ $stage -le 6 ] && [ $stop_stage -ge 6 ]; then
-  log "Stage 6: Split M subset into ${num_splits} piece"
-  split_dir=data/fbank/M_split_${num_splits}
-  if [ ! -f $split_dir/.split_completed ]; then
-    lhotse split $num_splits ./data/fbank/cuts_M_raw.jsonl.gz $split_dir
-    touch $split_dir/.split_completed
-  fi
-fi
-
-if [ $stage -le 7 ] && [ $stop_stage -ge 7 ]; then
-  log "Stage 7: Split L subset into ${num_splits} pieces"
-  split_dir=data/fbank/L_split_${num_splits}
-  if [ ! -f $split_dir/.split_completed ]; then
-    lhotse split $num_splits ./data/fbank/cuts_L_raw.jsonl.gz $split_dir
-    touch $split_dir/.split_completed
-  fi
-fi
-
-if [ $stage -le 8 ] && [ $stop_stage -ge 8 ]; then
-  log "Stage 8: Compute features for S"
-  python3 ./local/compute_fbank_wenetspeech_splits.py \
-    --training-subset S \
-    --num-workers 20 \
-    --batch-duration 600 \
-    --start 0 \
-    --num-splits $num_splits
-fi
-
-if [ $stage -le 9 ] && [ $stop_stage -ge 9 ]; then
-  log "Stage 9: Compute features for M"
-  python3 ./local/compute_fbank_wenetspeech_splits.py \
-    --training-subset M \
-    --num-workers 20 \
-    --batch-duration 600 \
-    --start 0 \
-    --num-splits $num_splits
-fi
-
-if [ $stage -le 10 ] && [ $stop_stage -ge 10 ]; then
-  log "Stage 10: Compute features for L"
-  python3 ./local/compute_fbank_wenetspeech_splits.py \
-    --training-subset L \
-    --num-workers 20 \
-    --batch-duration 600 \
-    --start 0 \
-    --num-splits $num_splits
-fi
-
-if [ $stage -le 11 ] && [ $stop_stage -ge 11 ]; then
-  log "Stage 11: Combine features for S"
-  if [ ! -f data/fbank/cuts_S.jsonl.gz ]; then
-    pieces=$(find data/fbank/S_split_1000 -name "cuts_S.*.jsonl.gz")
-    lhotse combine $pieces data/fbank/cuts_S.jsonl.gz
-  fi
-fi
-
-if [ $stage -le 12 ] && [ $stop_stage -ge 12 ]; then
-  log "Stage 12: Combine features for M"
-  if [ ! -f data/fbank/cuts_M.jsonl.gz ]; then
-    pieces=$(find data/fbank/M_split_1000 -name "cuts_M.*.jsonl.gz")
-    lhotse combine $pieces data/fbank/cuts_M.jsonl.gz
-  fi
-fi
-
-
