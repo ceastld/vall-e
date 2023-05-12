@@ -78,6 +78,7 @@ if [ $stage -le 2 ] && [ $stop_stage -ge 2 ]; then
     --preifx aishell2 \
     --suffix jsonl.gz \
     --audio-extractor ${audio_extractor} \
+    --text-extractor labeled_pinyin \
     --batch-duration 400 \
     --src-dir "data/manifests" \
     --output-dir "${audio_feats_dir}"

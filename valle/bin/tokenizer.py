@@ -180,7 +180,7 @@ def main():
                         f"{args.output_dir}/{args.prefix}_fbank_{partition}"
                     )
 
-                if args.prefix.lower() in ["ljspeech", "aishell", "baker"]:
+                if args.prefix.lower() in ["ljspeech", "aishell", "aishell2", "baker"]:
                     cut_set = cut_set.resample(24000)
                     # https://github.com/lifeiteng/vall-e/issues/90
                     # if args.prefix == "aishell":
@@ -216,7 +216,7 @@ def main():
             # TextTokenizer
             if args.text_extractor:
                 if (
-                    args.prefix == "baker"
+                    (args.prefix == "baker" or args.prefix == "aishell2")
                     and args.text_extractor == "labeled_pinyin"
                 ):
                     for c in tqdm(cut_set):
