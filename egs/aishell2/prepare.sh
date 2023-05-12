@@ -6,8 +6,8 @@ export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
 set -eou pipefail
 
 nj=30
-stage=0
-stop_stage=3
+stage=2
+stop_stage=2
 
 # We assume dl_dir (download dir) contains the following
 # directories and files. If not, you need to apply aishell2 through
