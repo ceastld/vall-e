@@ -1119,7 +1119,7 @@ def scan_pessimistic_batches_for_oom(
     for criterion, cuts in batches.items():
         batch = train_dl.dataset[cuts]
         try:
-            with torch.cuda.amp.autocast(dtype=dtype):
+            with torch.cuda.amp.autocast(dtype=dtype): # TODO fix bug here
                 _, loss, _ = compute_loss(
                     params=params,
                     model=model,
@@ -1137,6 +1137,8 @@ def scan_pessimistic_batches_for_oom(
                     f"Failing criterion: {criterion} "
                     f"(={crit_values[criterion]}) ..."
                 )
+            import traceback
+            traceback.print_exc() # convenience for debug
             display_and_save_batch(batch, params=params)
             raise
         logging.info(
