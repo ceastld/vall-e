@@ -183,12 +183,12 @@ def main():
                 if args.prefix.lower() in ["ljspeech", "aishell", "aishell2", "baker"]:
                     cut_set = cut_set.resample(24000)
                     # https://github.com/lifeiteng/vall-e/issues/90
-                    # if args.prefix == "aishell":
-                    #     # NOTE: the loudness of aishell audio files is around -33
-                    #     # The best way is datamodule --on-the-fly-feats --enable-audio-aug
-                    #     cut_set = cut_set.normalize_loudness(
-                    #         target=-20.0, affix_id=True
-                    #     )
+                    if args.prefix == "aishell" or args.prefix == "aishell2": 
+                        # NOTE: the loudness of aishell audio files is around -33
+                        # The best way is datamodule --on-the-fly-feats --enable-audio-aug
+                        cut_set = cut_set.normalize_loudness(
+                            target=-20.0, affix_id=True
+                        )
 
                 with torch.no_grad():
                     if (
@@ -216,7 +216,7 @@ def main():
             # TextTokenizer
             if args.text_extractor:
                 if (
-                    (args.prefix == "baker" or args.prefix == "aishell2")
+                    args.prefix == "baker"
                     and args.text_extractor == "labeled_pinyin"
                 ):
                     for c in tqdm(cut_set):
@@ -228,7 +228,7 @@ def main():
                             text = c.supervisions[0].custom["normalized_text"]
                             text = text.replace("”", '"').replace("“", '"')
                             phonemes = tokenize_text(text_tokenizer, text=text)
-                        elif args.prefix == "aishell":
+                        elif args.prefix == "aishell" or args.prefix == "aishell2":
                             phonemes = tokenize_text(
                                 text_tokenizer, text=c.supervisions[0].text
                             )
