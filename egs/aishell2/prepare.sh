@@ -7,7 +7,7 @@ set -eou pipefail
 
 nj=30
 stage=2
-stop_stage=2
+stop_stage=3
 
 # We assume dl_dir (download dir) contains the following
 # directories and files. If not, you need to apply aishell2 through
@@ -18,6 +18,7 @@ stop_stage=2
 
 dl_dir=$PWD/download
 
+text_extractor="pypinyin_initials_finals"
 audio_extractor="Encodec"  # or Fbank
 audio_feats_dir=data/tokenized
 
@@ -74,23 +75,40 @@ if [ $stage -le 2 ] && [ $stop_stage -ge 2 ]; then
   log "Stage 2: Tokenize/Fbank AiShell2"
   mkdir -p ${audio_feats_dir}
   if [ ! -e ${audio_feats_dir}/.aishell2.tokenize.done ]; then
-    python3 bin/tokenizer.py --dataset-parts "train dev test" \
-    --preifx aishell2 \
-    --suffix jsonl.gz \
+    CUDA_VISIBLE_DEVICES="7,6" python3 bin/tokenizer.py --dataset-parts "train dev test" \
+    --prefix aishell2 \
     --audio-extractor ${audio_extractor} \
-    --text-extractor labeled_pinyin \
+    --text-extractor ${text_extractor} \
     --batch-duration 400 \
     --src-dir "data/manifests" \
     --output-dir "${audio_feats_dir}"
   fi
-  touch ${audio_feats_dir}/.libritts.tokenize.done
+  touch ${audio_feats_dir}/.aishell2.tokenize.done
 fi
 
+# TODO split aishell2 to cuts_train ...
+
 if [ $stage -le 3 ] && [ $stop_stage -ge 3 ]; then
-  log "Stage 3: Compute fbank for aishell2"
-  if [ ! -f data/fbank/.aishell2.done ]; then
-    mkdir -p data/fbank
-    ./local/compute_fbank_aishell2.py
-    touch data/fbank/.aishell2.done
+  log "Stage 3: Prepare aishell2 train/dev/test"
+  if [ ! -e ${audio_feats_dir}/.aishell2.train.done ]; then
+    # dev
+    lhotse copy \
+      ${audio_feats_dir}/aishell2_cuts_dev.jsonl.gz \
+      ${audio_feats_dir}/cuts_dev.jsonl.gz
+
+    # train
+    lhotse copy \
+      ${audio_feats_dir}/aishell2_cuts_train.jsonl.gz \
+      ${audio_feats_dir}/cuts_train.jsonl.gz
+
+    # test
+    lhotse copy \
+      ${audio_feats_dir}/aishell2_cuts_test.jsonl.gz \
+      ${audio_feats_dir}/cuts_test.jsonl.gz
+
+    touch ${audio_feats_dir}/.aishell2.train.done
   fi
 fi
+
+
+python3 ./bin/display_manifest_statistics.py --manifest-dir ${audio_feats_dir}
