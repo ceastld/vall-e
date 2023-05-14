@@ -80,22 +80,15 @@ class PypinyinBackend:
                         _text, style=Style.TONE3, neutral_tone_with_five=True
                     )
                 ):
-                    if all([c in self.punctuation_marks for c in py[0]]):
-                        if len(phones):
-                            assert phones[-1] == separator.syllable
-                            phones.pop(-1)
-                        phones.extend(list(py[0]))
+                    initial = get_initials(py[0],strict=False)
+                    if len(initial) == 0:
+                        # (separator.syllable.join(list(py[0]))))
+                        for i in py[0]:
+                            phones.extend(i.upper())
+                            phones.extend(separator.syllable)
                     else:
-                        if py[0][-1].isalnum():
-                            initial = get_initials(py[0], strict=False)
-                            if py[0][-1].isdigit():
-                                final = (
-                                    get_finals(py[0][:-1], strict=False)
-                                    + py[0][-1]
-                                )
-                            else:
-                                final = get_finals(py[0], strict=False)
-                            phones.extend(
+                        final = get_finals(py[0], strict=False)
+                        phones.extend(
                                 [
                                     initial,
                                     separator.phone,
@@ -103,8 +96,6 @@ class PypinyinBackend:
                                     separator.syllable,
                                 ]
                             )
-                        else:
-                            assert ValueError
             else:
                 raise NotImplementedError
             phonemized.append(
