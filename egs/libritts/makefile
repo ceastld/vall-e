@@ -32,7 +32,7 @@ train_NAR:
 
 # step3 inference
 inference:
-	CUDA_VISIBLE_DEVICES=4 python bin/infer.py --output-dir infer/demos \
+	CUDA_VISIBLE_DEVICES=0 python bin/infer.py --output-dir infer/demos \
 		--model-name valle --norm-first true --add-prenet false \
 		--share-embedding true --norm-first true --add-prenet false \
 		--text-prompts "KNOT one point one five miles per hour." \
