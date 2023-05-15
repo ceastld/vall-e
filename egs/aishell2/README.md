@@ -4,7 +4,7 @@
 
 you need to download aishell2 dataset first. 
 
-and use `ln -s` to make symlink for `data` and `download`
+and use `ln -s` to make symlink for `download`
 
 ```
 cd egs/aishell2

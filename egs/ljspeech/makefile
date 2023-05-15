@@ -4,7 +4,7 @@ prepare_data:
 		--audio_feats_dir data/tokenized
 
 
-exp_dir=exp/valle
+exp_dir=exp/valle1
 
 tensorboard:
 	tensorboard --logdir=${exp_dir} --port=1234

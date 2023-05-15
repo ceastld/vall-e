@@ -219,7 +219,7 @@ def main():
                 )
             ]
         )
-
+        
         # synthesis
         if args.continual:
             assert text == ""
