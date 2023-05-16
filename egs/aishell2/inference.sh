@@ -8,10 +8,10 @@ exp_dir=exp/valle
 # audio_prompts=./prompts/8463_294825_000043_000000.wav
 # text="To get up and running quickly just follow the steps below."
 
-text_prompts="我只是觉得我们曾经所拥有的一切"
-audio_prompts="./prompts/IT0019W0282.wav"
-text="我是一头猪"
-output_dir="infer/IT0019W0282"
+text_prompts=
+audio_prompts=
+text=
+output_dir="infer"
 
 . shared/parse_options.sh || exit 1 # 用于接收命令行参数
 
@@ -32,4 +32,4 @@ CUDA_VISIBLE_DEVICES=0 python bin/infer.py \
     --output-dir "${output_dir}" \
     --text "${text}" \
     --text-extractor "pypinyin_initials_finals" \
-    --checkpoint=${exp_dir}/best-valid-loss.pt
+    --checkpoint ${exp_dir}/best-valid-loss.pt
