@@ -1,0 +1,2 @@
+昨天我去了一个很美的地方	audios/test/ldy.wav	明天的会议时间改为下午两点	audios/test/ldy_infer.wav
+工作完成了	audios/test/ldy1.wav	健康的身体是实现梦想和幸福生活的基石	audios/test/ldy1_infer.wav
