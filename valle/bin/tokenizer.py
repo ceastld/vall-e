@@ -153,9 +153,9 @@ def main():
     num_jobs = min(32, os.cpu_count())
     logging.info(f"dataset_parts: {dataset_parts} manifests {len(manifests)}")
 
-    prefix = args.prefix
-    if prefix and not prefix.endswith("_"):
-        prefix = f"{prefix}_"
+    prefix = str(args.prefix)
+    prefix = prefix.rstrip("_")
+        
     with get_executor() as ex:
         for partition, m in manifests.items():
             logging.info(
@@ -173,17 +173,17 @@ def main():
             if args.audio_extractor:
                 if args.audio_extractor == "Encodec":
                     storage_path = (
-                        f"{args.output_dir}/{args.prefix}_encodec_{partition}"
+                        f"{args.output_dir}/{prefix}_encodec_{partition}"
                     )
                 else:
                     storage_path = (
-                        f"{args.output_dir}/{args.prefix}_fbank_{partition}"
+                        f"{args.output_dir}/{prefix}_fbank_{partition}"
                     )
 
-                if args.prefix.lower() in ["ljspeech", "aishell", "aishell2", "baker"]:
+                if prefix.lower() in ["ljspeech", "aishell", "aishell2", "baker", "genshin"]:
                     cut_set = cut_set.resample(24000)
                     # https://github.com/lifeiteng/vall-e/issues/90
-                    if args.prefix == "aishell" or args.prefix == "aishell2": 
+                    if prefix == "aishell" or prefix == "aishell2": 
                         # NOTE: the loudness of aishell audio files is around -33
                         # The best way is datamodule --on-the-fly-feats --enable-audio-aug
                         cut_set = cut_set.normalize_loudness(
@@ -224,24 +224,24 @@ def main():
                         unique_symbols.update(phonemes)
                 else:
                     for c in tqdm(cut_set):
-                        if args.prefix == "ljspeech":
+                        if prefix == "ljspeech":
                             text = c.supervisions[0].custom["normalized_text"]
                             text = text.replace("”", '"').replace("“", '"')
                             phonemes = tokenize_text(text_tokenizer, text=text)
-                        elif args.prefix == "aishell" or args.prefix == "aishell2":
+                        elif prefix == "aishell" or prefix == "aishell2" or prefix == "genshin":
                             phonemes = tokenize_text(
                                 text_tokenizer, text=c.supervisions[0].text
                             )
                             c.supervisions[0].custom = {}
                         else:
-                            assert args.prefix == "libritts"
+                            assert prefix == "libritts"
                             phonemes = tokenize_text(
                                 text_tokenizer, text=c.supervisions[0].text
                             )
                         c.supervisions[0].custom["tokens"] = {"text": phonemes}
                         unique_symbols.update(phonemes)
 
-            cuts_filename = f"{prefix}cuts_{partition}.{args.suffix}"
+            cuts_filename = f"{prefix}_cuts_{partition}.{args.suffix}"
             cut_set.to_file(f"{args.output_dir}/{cuts_filename}")
 
     if args.text_extractor:

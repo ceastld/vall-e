@@ -62,9 +62,7 @@ class PypinyinBackend:
             phones = []
             if self.backend == "pypinyin":
                 for n, py in enumerate(
-                    pinyin(
-                        _text, style=Style.TONE3, neutral_tone_with_five=True
-                    )
+                    pinyin(_text, style=Style.TONE3, neutral_tone_with_five=True)
                 ):
                     if all([c in self.punctuation_marks for c in py[0]]):
                         if len(phones):
@@ -75,27 +73,21 @@ class PypinyinBackend:
                     else:
                         phones.extend([py[0], separator.syllable])
             elif self.backend == "pypinyin_initials_finals":
-                for n, py in enumerate(
-                    pinyin(
-                        _text, style=Style.TONE3, neutral_tone_with_five=True
-                    )
-                ):
-                    initial = get_initials(py[0],strict=False)
-                    if len(initial) == 0:
-                        # (separator.syllable.join(list(py[0]))))
-                        for i in py[0]:
-                            phones.extend(i.upper())
-                            phones.extend(separator.syllable)
-                    else:
-                        final = get_finals(py[0], strict=False)
-                        phones.extend(
-                                [
-                                    initial,
-                                    separator.phone,
-                                    final,
-                                    separator.syllable,
-                                ]
-                            )
+                chunks = (
+                    chunk for chunk in re.split("([\u4e00-\u9fff]+)", _text) if chunk
+                )
+                for chunk in chunks:
+                    # 如果chunk的第一个字符是中文
+                    if '\u4e00' <= chunk[0] <= '\u9fff':
+                        for py in pinyin(chunk, style=Style.TONE3, neutral_tone_with_five=True):
+                            initial = get_initials(py[0], strict=False)
+                            final = get_finals(py[0], strict=False)
+                            if initial:
+                                phones.extend([initial, separator.phone])
+                            phones.extend([final, separator.syllable])
+                    else:  # 如果是非中文
+                        phones.extend(list(chunk))
+                        phones.append(separator.syllable)
             else:
                 raise NotImplementedError
             phonemized.append(
@@ -146,8 +138,7 @@ class TextTokenizer:
             # "ɐ    m|iː|n?"    ɹ|ɪ|z|ɜː|v; h|ɪ|z.
             pp = re.findall(r"\w+|[^\w\s]", word, re.UNICODE)
             fields.extend(
-                [p for p in pp if p != self.separator.phone]
-                + [self.separator.word]
+                [p for p in pp if p != self.separator.phone] + [self.separator.word]
             )
         assert len("".join(fields[:-1])) == len(phonemized) - phonemized.count(
             self.separator.phone
@@ -315,7 +306,11 @@ class AudioTokenExtractor(FeatureExtractor):
         return padded_tensor, lengths
 
     def extract_batch(self, samples, sampling_rate, lengths) -> np.ndarray:
-        samples = [wav.squeeze() for wav in samples]
+        # 如果wav是多声道音频，就对多个声道计算平均值
+        samples = [
+            torch.mean(wav, dim=0) if wav.shape[0] > 1 else wav.squeeze()
+            for wav in samples
+        ]
         device = self.tokenizer.device
         samples, lengths = self.pad_tensor_list(samples, device)
         samples = samples.unsqueeze(1)
@@ -355,9 +350,7 @@ if __name__ == "__main__":
     model = EncodecModel.encodec_model_24khz()
     model.set_target_bandwidth(6.0)
 
-    samples = torch.from_numpy(np.random.random([4, 1, 1600])).type(
-        torch.float32
-    )
+    samples = torch.from_numpy(np.random.random([4, 1, 1600])).type(torch.float32)
     codes_raw = model.encode(samples)
 
     remove_encodec_weight_norm(model)
