@@ -3,6 +3,8 @@ import os
 from os import PathLike
 from pathlib import Path
 import random
+import shutil
+from typing import Callable, List, Tuple
 from IPython.display import display, Audio
 import re
 
@@ -84,3 +86,52 @@ class TextProcessor:
     def text_pre_process(self, text: str) -> str:
         return "".join([self.process_char(c) for c in text]).strip()
     
+def copy_file(source_file, destination_folder):
+    # 检查源文件是否存在
+    if not os.path.isfile(source_file):
+        print(f"源文件 '{source_file}' 不存在。")
+        return
+
+    # 检查目标文件夹是否存在，如果不存在则创建
+    if not os.path.exists(destination_folder):
+        os.makedirs(destination_folder)
+
+    # 获取源文件的文件名
+    file_name = os.path.basename(source_file)
+
+    # 构建目标文件的完整路径
+    destination_file = os.path.join(destination_folder, file_name)
+
+    try:
+        # 复制文件
+        shutil.copy2(source_file, destination_file)
+        print(f"成功将文件 '{source_file}' 复制到 '{destination_file}'。")
+    except Exception as e:
+        print(f"复制文件时发生错误：{str(e)}")
+        
+
+def create_file_base(
+    file_name: PathLike,
+    ids: List[str],
+    get_info: Callable[[str], Tuple[str, PathLike]],
+    texts: List[str],
+    infer_dir: PathLike,
+    copy: bool = False,
+):
+    with open(file_name, "w") as file:
+        used = {}
+        for n, id in enumerate(ids):
+            text_prompt, audio_prompt = get_info(id)
+            text = texts[n % len(ids)]
+            if id in used:
+                used[id] += 1
+                suffix = f"infer{used[id]}"
+            else:
+                used[id] = 0
+                suffix = "infer"
+            audio_out = f"{infer_dir}/{id}_{suffix}.wav"
+            file.write(f"{text_prompt}\t{audio_prompt}\t{text}\t{audio_out}\n")
+    print(open(file_name).read())
+    if copy:
+        shutil.copyfile(file_name, f"../../../{file_name}")
+    return file_name
