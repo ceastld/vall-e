@@ -1,0 +1,4 @@
+你真的这么做吗	audios/aishell2_nice/IT0016W0441_prompt.wav	健康的身体是实现梦想和幸福生活的基石	audios/aishell2_nice/IT0016W0441_infer.wav
+他们在靠近	audios/aishell2_nice/IT0022W0457_prompt.wav	健康的身体是实现梦想和幸福生活的基石	audios/aishell2_nice/IT0022W0457_infer.wav
+那群野蛮人已经走了	audios/aishell2_nice/IT0023W0090_prompt.wav	健康的身体是实现梦想和幸福生活的基石	audios/aishell2_nice/IT0023W0090_infer.wav
+让你吃尽苦头	audios/aishell2_nice/IT0025W0410_prompt.wav	健康的身体是实现梦想和幸福生活的基石	audios/aishell2_nice/IT0025W0410_infer.wav

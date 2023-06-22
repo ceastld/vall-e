@@ -1,0 +1,5 @@
+现在我们的社会地位是平等的	audios/aishell2/IT0017W0333_prompt.wav	我最近在学习一门新的编程语言	audios/aishell2/IT0017W0333_infer.wav
+现在我们的社会地位是平等的	audios/aishell2/IT0017W0333_prompt.wav	我最近在学习一门新的编程语言	audios/aishell2/IT0017W0333_infer1.wav
+现在我们的社会地位是平等的	audios/aishell2/IT0017W0333_prompt.wav	我最近在学习一门新的编程语言	audios/aishell2/IT0017W0333_infer2.wav
+现在我们的社会地位是平等的	audios/aishell2/IT0017W0333_prompt.wav	我最近在学习一门新的编程语言	audios/aishell2/IT0017W0333_infer3.wav
+现在我们的社会地位是平等的	audios/aishell2/IT0017W0333_prompt.wav	我最近在学习一门新的编程语言	audios/aishell2/IT0017W0333_infer4.wav
