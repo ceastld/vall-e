@@ -1,0 +1,4 @@
+昨天我去了一个很美的地方	audios/test/ldy.wav	今天天气真好,适合出去散步	audios/test/ldy_infer.wav
+昨天我去了一个很美的地方	audios/test/ldy.wav	我们可以一起去看电影或者喝杯咖啡	audios/test/ldy_infer1.wav
+昨天我去了一个很美的地方	audios/test/ldy.wav	今天天气真好,适合出去散步	audios/test/ldy_infer2.wav
+工作完成了	audios/test/ldy1.wav	我们可以一起去看电影或者喝杯咖啡	audios/test/ldy1_infer.wav

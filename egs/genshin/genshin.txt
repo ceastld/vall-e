@@ -1,0 +1,5 @@
+只要我不忙,随时欢迎你来哦.	download/genshin/Chinese/VO_HS/VO_hutao/vo_hutao_mimitomo_friendship1_03b_2.wav	相信自己的力量,勇往直前,你一定能够战胜一切困难.	audios/genshin/b64bd7f1fdc737f1_infer.wav
+再见,今后有机会一起写诗!	download/genshin/Chinese/VO_EQ/VO_hutao/vo_EQHDJ201_4_talk_hutao_05.wav	冒险的旅程中,希望我们能够结识更多的朋友,共同创造美好的回忆.	audios/genshin/ad5d31272e8c67a1_infer.wav
+嘻嘻,月亮出来喽 咱也出门吧.	download/genshin/Chinese/VO_friendship/VO_hutao/vo_hutao_dialog_greetingNight.wav	勇敢面对挑战,超越自己的极限,你会发现无限的可能.	audios/genshin/123a131a1021960e_infer.wav
+吃饱喝饱,一路走好!	download/genshin/Chinese/VO_gameplay/VO_hutao/vo_hutao_battle_skill3_01.wav	让我们砥砺前行,继续书写属于我们的传奇故事.	audios/genshin/1418e3d64adc958b_infer.wav
+不如去我那儿喝杯茶?嘿	download/genshin/Chinese/VO_friendship/VO_hutao/vo_hutao_explore_idle_01.wav	用笑容面对生活的挑战,传递快乐和温暖给身边的人.	audios/genshin/44d330f3c6b8ad88_infer.wav
