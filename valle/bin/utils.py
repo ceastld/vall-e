@@ -43,10 +43,9 @@ def show_audios(text_file):
     with open(text_file) as file:
         for n, line in enumerate(file.readlines()):
             text_prompt, audio_prompt, text, audio_file = line.strip().split("\t")
-            print(f"------------{Path(audio_prompt).stem}---------------")
+            print(f"-------{n}-----{Path(audio_prompt).stem}---------------")
             display(text_prompt, Audio(audio_prompt), text)
             if os.path.exists(audio_file):
-                print(audio_file)
                 display(Audio(audio_file))
 
 
@@ -83,7 +82,7 @@ class TextProcessor:
             return self.replace_dict[character]
         return " "
 
-    def text_pre_process(self, text: str) -> str:
+    def process_str(self, text: str) -> str:
         return "".join([self.process_char(c) for c in text]).strip()
     
 def copy_file(source_file, destination_folder):
@@ -108,6 +107,7 @@ def copy_file(source_file, destination_folder):
         print(f"成功将文件 '{source_file}' 复制到 '{destination_file}'。")
     except Exception as e:
         print(f"复制文件时发生错误：{str(e)}")
+    return destination_file
         
 
 def create_file_base(
@@ -118,6 +118,7 @@ def create_file_base(
     infer_dir: PathLike,
     copy: bool = False,
 ):
+    os.makedirs(infer_dir, exist_ok=True)
     with open(file_name, "w") as file:
         used = {}
         for n, id in enumerate(ids):
@@ -135,3 +136,35 @@ def create_file_base(
     if copy:
         shutil.copyfile(file_name, f"../../../{file_name}")
     return file_name
+
+def copy_file_in_line(line: str, target_path: PathLike):
+    """创建用于demo
+
+    Args:
+        line (str): 文件中的一行
+        target_path (PathLike): 复制到的目标文件夹路径
+
+    Returns:
+        _type_: 将文件路径替换过后的一行
+    """
+    audio_in = line.split("\t")[1]
+    audio_out = line.split("\t")[3].strip()
+    audio_in_new = copy_file(audio_in, target_path)
+    audio_out_new = copy_file(audio_out, target_path)
+    return line.replace(audio_in, audio_in_new).replace(audio_out,audio_out_new)
+
+import gzip
+import json
+
+def read_jsonl_gz(file_path):
+    with gzip.open(file_path, 'rt') as f:
+        for line in f:
+            yield json.loads(line)
+
+def get_jsonl_gz_data(file_path):
+    # 逐行读取和解析 JSON 数据
+    json_data = list(read_jsonl_gz(file_path))
+    print(json_data)
+    
+# file_path = './data/manifests/genshin_supervisions_dev.jsonl.gz'
+

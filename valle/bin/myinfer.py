@@ -12,6 +12,7 @@ from valle.data.tokenizer import (
 
 from valle.models.valle import VALLE
 
+
 class InferModel:
     def __init__(
         self,
@@ -72,12 +73,21 @@ class InferModel:
         )
         samples = self.audio_tokenizer.decode([(encoded_frames.transpose(2, 1), None)])
         torchaudio.save(save_path, samples[0].cpu(), 24000)
-        
-    def infer_by_file(self,file_name:PathLike):
+
+    def audio_codec_test(self, audio_prompt_path, save_path):
+        audio_prompt = tokenize_audio(self.audio_tokenizer, audio_prompt_path)[0][0].to(
+            self.device
+        )
+        print(audio_prompt.shape)
+        samples = self.audio_tokenizer.decode([(audio_prompt, None)])
+        print(samples.shape)
+        torchaudio.save(save_path, samples[0].cpu(), 24000)
+        pass
+
+    def infer_by_file(self, file_name: PathLike):
         lines = open(file_name).readlines()
         for line in lines:
             org = line.strip()
             if org == "":
                 continue
-            self.infer(*org.split('\t'))
-
+            self.infer(*org.split("\t"))
