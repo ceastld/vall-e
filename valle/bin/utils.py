@@ -161,10 +161,6 @@ def read_jsonl_gz(file_path):
         for line in f:
             yield json.loads(line)
 
-def get_jsonl_gz_data(file_path):
-    # 逐行读取和解析 JSON 数据
-    json_data = list(read_jsonl_gz(file_path))
-    print(json_data)
     
 # file_path = './data/manifests/genshin_supervisions_dev.jsonl.gz'
 

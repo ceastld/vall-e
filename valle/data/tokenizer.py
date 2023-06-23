@@ -86,8 +86,7 @@ class PypinyinBackend:
                                 phones.extend([initial, separator.phone])
                             phones.extend([final, separator.syllable])
                     else:  # 如果是非中文
-                        # 需要单独处理一下英文的...
-                        phones.extend(list(chunk))
+                        phones.extend(separator.phone.join(list(chunk)))
                         phones.append(separator.syllable)
             else:
                 raise NotImplementedError
