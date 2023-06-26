@@ -9,7 +9,7 @@ and use `ln -s` to make symlink for `download`
 ```
 cd egs/aishell2
 # Those stages are very time-consuming
-bash prepare.sh ...
+bash prepare.sh ... for about 9 hours
 ```
 #### data
 
