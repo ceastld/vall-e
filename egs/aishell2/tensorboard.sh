@@ -1,0 +1,1 @@
+tensorboard --logdir=exp --port=1234
